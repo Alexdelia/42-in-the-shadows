@@ -1,9 +1,14 @@
+mod scene;
+
 use bevy::prelude::*;
 
-pub fn setup(
-	mut commands: Commands,
-	mut meshes: ResMut<Assets<Mesh>>,
-	mut materials: ResMut<Assets<StandardMaterial>>,
-	asset_server: Res<AssetServer>,
-) {
+use crate::{despawn, MainState};
+
+pub struct MainMenuPlugin;
+
+impl Plugin for MainMenuPlugin {
+	fn build(&self, app: &mut App) {
+		app.add_systems(OnEnter(MainState::MainMenu), scene::spawn)
+			.add_systems(OnExit(MainState::MainMenu), despawn::<scene::MainMenuScene>);
+	}
 }

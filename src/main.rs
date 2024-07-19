@@ -1,6 +1,9 @@
+mod despawn;
 mod gameplay;
 mod level_select;
 mod main_menu;
+
+pub use despawn::despawn;
 
 use bevy::prelude::*;
 use bevy_obj::ObjPlugin;
@@ -15,9 +18,8 @@ enum MainState {
 
 fn main() {
 	App::new()
+		.add_plugins((DefaultPlugins, ObjPlugin, main_menu::MainMenuPlugin))
 		.init_state::<MainState>()
-		.add_plugins((DefaultPlugins, ObjPlugin))
-		.add_systems(OnEnter(MainState::MainMenu), main_menu::setup)
 		.add_systems(OnEnter(MainState::Gameplay), gameplay::setup)
 		.run();
 }
