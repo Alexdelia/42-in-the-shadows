@@ -22,55 +22,41 @@ pub fn spawn(
 	#[cfg(debug_assertions)]
 	{
 		let point = meshes.add(Sphere::new(0.3));
-		let material = materials.add(StandardMaterial {
-			base_color: Color::srgb(1.0, 0.0, 0.0),
-			alpha_mode: AlphaMode::Mask(0.3),
-			..default()
-		});
 
-		// center
-		c.spawn((
-			PbrBundle {
-				mesh: point,
-				material: material,
-				transform: Transform::from_xyz(0.0, 0.0, 0.0),
-				..default()
-			},
-			GameplayScene,
-		));
+		for (pos, color) in &[
+			(Vec3::new(0.0, 0.0, 0.0), Color::srgb(1.0, 1.0, 1.0)),
+			(position::TOP_FRONT_CORNER, Color::srgb(1.0, 0.0, 0.0)),
+			(position::BOT_FRONT_CORNER, Color::srgb(0.0, 0.5, 1.0)),
+			(position::TOP_RIGHT_CORNER, Color::srgb(1.0, 1.0, 0.0)),
+			(position::BOT_RIGHT_CORNER, Color::srgb(0.5, 0.0, 1.0)),
+			(position::TOP_LEFT_CORNER, Color::srgb(0.0, 1.0, 0.0)),
+			(position::BOT_LEFT_CORNER, Color::srgb(1.0, 0.0, 1.0)),
+			(position::TOP_BACK_CORNER, Color::srgb(0.3, 0.3, 0.3)),
+			(position::BOT_BACK_CORNER, Color::srgb(0.0, 0.0, 0.0)),
+		] {
+			c.spawn((
+				PbrBundle {
+					mesh: point.clone(),
+					material: materials.add(StandardMaterial {
+						base_color: *color,
+						alpha_mode: AlphaMode::Mask(0.3),
+						..default()
+					}),
+					transform: Transform::from_xyz(pos.x, pos.y, pos.z),
+					..default()
+				},
+				GameplayScene,
+			));
+		}
 	}
 
-	// circular base
-	c.spawn((
-		PbrBundle {
-			mesh: meshes.add(Circle::new(4.0)),
-			material: materials.add(Color::WHITE),
-			transform: Transform::from_rotation(Quat::from_rotation_x(
-				-std::f32::consts::FRAC_PI_2,
-			)),
-			..default()
-		},
-		GameplayScene,
-	));
 	// obj
+	/*
 	c.spawn((
 		PbrBundle {
 			mesh: asset_server.load("42.obj"),
 			material: materials.add(Color::srgb_u8(124, 144, 255)),
 			transform: Transform::from_xyz(0.0, 0.5, 0.0),
-			..default()
-		},
-		GameplayScene,
-	));
-	// light
-	/*
-	commands.spawn((
-		PointLightBundle {
-			point_light: PointLight {
-				shadows_enabled: true,
-				..default()
-			},
-			transform: Transform::from_xyz(4.0, 8.0, 4.0),
 			..default()
 		},
 		GameplayScene,
@@ -81,7 +67,7 @@ pub fn spawn(
 fn camera(c: &mut Commands) {
 	c.spawn((
 		Camera3dBundle {
-			transform: Transform::from_xyz(2.0, 1.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
+			transform: Transform::from_xyz(2.0, 1.0, 20.0).looking_at(Vec3::ZERO, Vec3::Y),
 			..default()
 		},
 		GameplayScene,
@@ -125,14 +111,27 @@ fn wall(
 	// - BOT_RIGHT_CORNER
 	c.spawn((
 		PbrBundle {
-			mesh: meshes.add(Rectangle::new(1.0, 1.0)),
-			material: materials.add(Color::srgb_u8(255, 255, 255)),
-			transform: Transform {
-				translation: position::TOP_FRONT_CORNER,
-				rotation: Quat::from_rotation_x(-PI / 2.0),
-				..default()
-			},
-
+			mesh: meshes.add(Rectangle::new(4.0, 4.0)),
+			material: materials.add(Color::srgb(0.0, 1.0, 0.0)),
+			// transform: Transform::from_matrix(Mat4::from_cols_array(&[
+			// 	position::TOP_FRONT_CORNER.x,
+			// 	position::TOP_FRONT_CORNER.y,
+			// 	position::TOP_FRONT_CORNER.z,
+			// 	0.0, // x
+			// 	position::BOT_FRONT_CORNER.x,
+			// 	position::BOT_FRONT_CORNER.y,
+			// 	position::BOT_FRONT_CORNER.z,
+			// 	0.0, // y
+			// 	position::TOP_RIGHT_CORNER.x,
+			// 	position::TOP_RIGHT_CORNER.y,
+			// 	position::TOP_RIGHT_CORNER.z,
+			// 	0.0, // z
+			// 	0.0,
+			// 	0.0,
+			// 	0.0,
+			// 	1.0,
+			// ])),
+			transform: Transform::from_matrix(
 			..default()
 		},
 		GameplayScene,

@@ -2,7 +2,7 @@ use bevy::prelude::Vec3;
 
 pub const DIMENSIONS: f32 = 1.0;
 
-pub const WALL_DIMENSIONS: Vec3 = Vec3::new(8.0 * DIMENSIONS, 8.0 * DIMENSIONS, 8.0 * DIMENSIONS);
+pub const WALL_DIMENSIONS: Vec3 = Vec3::new(12.0 * DIMENSIONS, 9.0 * DIMENSIONS, 12.0 * DIMENSIONS);
 
 pub const TOP_FRONT_CORNER: Vec3 =
 	Vec3::new(0.0, WALL_DIMENSIONS.y / 2.0, -(WALL_DIMENSIONS.z / 2.0));
