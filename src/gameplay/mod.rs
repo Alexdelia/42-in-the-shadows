@@ -2,14 +2,20 @@ mod scene;
 
 use bevy::prelude::*;
 
-use crate::{despawn, MainState};
+use crate::{despawn, remove_resource, MainState};
 
 pub struct GameplayPlugin;
 
 impl Plugin for GameplayPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_systems(OnEnter(MainState::Gameplay), scene::spawn)
-			.add_systems(OnExit(MainState::Gameplay), despawn::<scene::GameplayScene>)
+			.add_systems(
+				OnExit(MainState::Gameplay),
+				(
+					despawn::<scene::GameplayScene>,
+					remove_resource::<AmbientLight>,
+				),
+			)
 			.add_systems(Update, key_handler);
 	}
 }

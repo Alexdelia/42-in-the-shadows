@@ -1,0 +1,150 @@
+mod position;
+
+use std::f32::consts::PI;
+
+use bevy::prelude::*;
+
+#[derive(Component)]
+pub struct GameplayScene;
+
+pub fn spawn(
+	mut c: Commands,
+	mut meshes: ResMut<Assets<Mesh>>,
+	mut materials: ResMut<Assets<StandardMaterial>>,
+	asset_server: Res<AssetServer>,
+) {
+	camera(&mut c);
+	ambient_light(&mut c);
+	spotlight(&mut c);
+
+	wall(&mut c, &mut meshes, &mut materials);
+
+	#[cfg(debug_assertions)]
+	{
+		let point = meshes.add(Sphere::new(0.3));
+		let material = materials.add(StandardMaterial {
+			base_color: Color::srgb(1.0, 0.0, 0.0),
+			alpha_mode: AlphaMode::Mask(0.3),
+			..default()
+		});
+
+		// center
+		c.spawn((
+			PbrBundle {
+				mesh: point,
+				material: material,
+				transform: Transform::from_xyz(0.0, 0.0, 0.0),
+				..default()
+			},
+			GameplayScene,
+		));
+	}
+
+	// circular base
+	c.spawn((
+		PbrBundle {
+			mesh: meshes.add(Circle::new(4.0)),
+			material: materials.add(Color::WHITE),
+			transform: Transform::from_rotation(Quat::from_rotation_x(
+				-std::f32::consts::FRAC_PI_2,
+			)),
+			..default()
+		},
+		GameplayScene,
+	));
+	// obj
+	c.spawn((
+		PbrBundle {
+			mesh: asset_server.load("42.obj"),
+			material: materials.add(Color::srgb_u8(124, 144, 255)),
+			transform: Transform::from_xyz(0.0, 0.5, 0.0),
+			..default()
+		},
+		GameplayScene,
+	));
+	// light
+	/*
+	commands.spawn((
+		PointLightBundle {
+			point_light: PointLight {
+				shadows_enabled: true,
+				..default()
+			},
+			transform: Transform::from_xyz(4.0, 8.0, 4.0),
+			..default()
+		},
+		GameplayScene,
+	));
+	*/
+}
+
+fn camera(c: &mut Commands) {
+	c.spawn((
+		Camera3dBundle {
+			transform: Transform::from_xyz(2.0, 1.0, 10.0).looking_at(Vec3::ZERO, Vec3::Y),
+			..default()
+		},
+		GameplayScene,
+	));
+}
+
+fn ambient_light(c: &mut Commands) {
+	c.insert_resource(AmbientLight {
+		color: Color::WHITE,
+		brightness: 20.0,
+	});
+}
+
+fn spotlight(c: &mut Commands) {
+	c.spawn((
+		SpotLightBundle {
+			transform: Transform::from_xyz(1.0, 2.0, 1.0).looking_at(Vec3::ZERO, Vec3::Y),
+			spot_light: SpotLight {
+				intensity: 40_000.0, // lumens
+				color: Color::WHITE,
+				shadows_enabled: true,
+				inner_angle: PI / 4.0 * 0.85,
+				outer_angle: PI / 4.0,
+				..default()
+			},
+			..default()
+		},
+		GameplayScene,
+	));
+}
+
+fn wall(
+	c: &mut Commands,
+	meshes: &mut ResMut<Assets<Mesh>>,
+	materials: &mut ResMut<Assets<StandardMaterial>>,
+) {
+	// wall with 4 vertices:
+	// - TOP_FRONT_CORNER
+	// - BOT_FRONT_CORNER
+	// - TOP_RIGHT_CORNER
+	// - BOT_RIGHT_CORNER
+	c.spawn((
+		PbrBundle {
+			mesh: meshes.add(Rectangle::new(1.0, 1.0)),
+			material: materials.add(Color::srgb_u8(255, 255, 255)),
+			transform: Transform {
+				translation: position::TOP_FRONT_CORNER,
+				rotation: Quat::from_rotation_x(-PI / 2.0),
+				..default()
+			},
+
+			..default()
+		},
+		GameplayScene,
+	));
+
+	// c.spawn((
+	// 	PbrBundle {
+	// 		mesh: meshes.add(Rectangle::new(1.0, 1.0)),
+	// 		material: materials.add(Color::srgb_u8(100, 200, 200)),
+	// 		transform: Transform::from_xyz(5.0, 0.5, 0.0),
+	// 		..default()
+	// 	},
+	// 	GameplayScene,
+	// ));
+}
