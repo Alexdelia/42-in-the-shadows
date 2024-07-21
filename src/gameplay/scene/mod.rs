@@ -2,7 +2,7 @@ mod position;
 
 use std::f32::consts::PI;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, scene::ron::de};
 
 #[derive(Component)]
 pub struct GameplayScene;
@@ -17,7 +17,7 @@ pub fn spawn(
 	ambient_light(&mut c);
 	spotlight(&mut c);
 
-	wall(&mut c, &mut meshes, &mut materials);
+	wall(&mut c, &asset_server);
 
 	#[cfg(debug_assertions)]
 	{
@@ -62,6 +62,36 @@ pub fn spawn(
 		GameplayScene,
 	));
 	*/
+
+	c.spawn((
+		PbrBundle {
+			mesh: asset_server.load("scene/wall.gltf.glb#Mesh0/Primitive0"),
+			material: asset_server.load("scene/wall.gltf.glb#Material0"),
+			transform: Transform {
+				translation: [
+					position::TOP_FRONT_CORNER,
+					position::BOT_FRONT_CORNER,
+					position::TOP_RIGHT_CORNER,
+					position::BOT_RIGHT_CORNER,
+				]
+				.iter()
+				.sum::<Vec3>() / 4.0,
+				rotation: Quat::from_xyzw(0.0, 0.0, 0.0, 1.0),
+				scale: Vec3::ONE,
+			},
+			..default()
+		},
+		GameplayScene,
+	));
+
+	c.spawn((
+		SceneBundle {
+			scene: asset_server.load("axe_rare.gltf.glb#Scene0"),
+			transform: Transform::from_scale(Vec3::splat(4.0)),
+			..default()
+		},
+		GameplayScene,
+	));
 }
 
 fn camera(c: &mut Commands) {
@@ -77,7 +107,7 @@ fn camera(c: &mut Commands) {
 fn ambient_light(c: &mut Commands) {
 	c.insert_resource(AmbientLight {
 		color: Color::WHITE,
-		brightness: 20.0,
+		brightness: 500.0,
 	});
 }
 
@@ -99,16 +129,13 @@ fn spotlight(c: &mut Commands) {
 	));
 }
 
-fn wall(
-	c: &mut Commands,
-	meshes: &mut ResMut<Assets<Mesh>>,
-	materials: &mut ResMut<Assets<StandardMaterial>>,
-) {
+fn wall(c: &mut Commands, asset_server: &Res<AssetServer>) {
 	// wall with 4 vertices:
 	// - TOP_FRONT_CORNER
 	// - BOT_FRONT_CORNER
 	// - TOP_RIGHT_CORNER
 	// - BOT_RIGHT_CORNER
+	/*
 	c.spawn((
 		PbrBundle {
 			mesh: meshes.add(Rectangle::new(4.0, 4.0)),
@@ -135,15 +162,25 @@ fn wall(
 			..default()
 		},
 		GameplayScene,
-	));
+	));*/
 
-	// c.spawn((
-	// 	PbrBundle {
-	// 		mesh: meshes.add(Rectangle::new(1.0, 1.0)),
-	// 		material: materials.add(Color::srgb_u8(100, 200, 200)),
-	// 		transform: Transform::from_xyz(5.0, 0.5, 0.0),
-	// 		..default()
-	// 	},
-	// 	GameplayScene,
-	// ));
+	c.spawn((
+		SceneBundle {
+			scene: asset_server.load("scene/wall.gltf.glb#Scene0"),
+			transform: Transform {
+				translation: [
+					position::TOP_FRONT_CORNER,
+					position::BOT_FRONT_CORNER,
+					position::TOP_RIGHT_CORNER,
+					position::BOT_RIGHT_CORNER,
+				]
+				.iter()
+				.sum::<Vec3>() / 4.0,
+				rotation: Quat::from_xyzw(0.0, 0.0, 0.0, 1.0),
+				scale: Vec3::ONE,
+			},
+			..default()
+		},
+		GameplayScene,
+	));
 }
